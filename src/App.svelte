@@ -1,33 +1,63 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   export let name: string;
+
+  const canvasWidth = 1024;
+
+  let canvas;
+
+  onMount(() => {
+    canvas.width = canvasWidth;
+    canvas.height = canvasWidth * (9 / 16);
+
+    console.log(canvas.width, canvas.height);
+
+    const ctx = canvas.getContext("2d");
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const data = new Uint8ClampedArray(4 * canvas.width * canvas.height);
+
+    for (let i = 0; i < data.length; i += 4) {
+      const value = (255 * ((i / 4) % canvas.width)) / canvasWidth;
+      data[i] = value;
+      data[i + 1] = value;
+      data[i + 2] = value;
+      data[i + 3] = 255;
+    }
+
+    console.log(data);
+
+    const imageData = new ImageData(data, canvas.width, canvas.height);
+
+    console.log(imageData);
+    ctx.putImageData(imageData, 0, 0);
+  });
 </script>
 
 <main>
-  <h1>Hello {name}!</h1>
-  <p>
-    Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn
-    how to build Svelte apps.
-  </p>
+  <canvas
+    bind:this={canvas}
+    width={canvasWidth}
+    style="--max-width: {canvasWidth}px"
+  />
 </main>
 
 <style>
   main {
-    text-align: center;
-    padding: 1em;
-    max-width: 240px;
-    margin: 0 auto;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+
+    background: #567;
   }
 
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4em;
-    font-weight: 100;
-  }
-
-  @media (min-width: 640px) {
-    main {
-      max-width: none;
-    }
+  canvas {
+    max-width: var(--max-width);
+    /* aspect-ratio: 16/9; */
+    width: 100%;
   }
 </style>
