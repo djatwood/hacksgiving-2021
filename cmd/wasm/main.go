@@ -5,21 +5,21 @@ import (
 	"syscall/js"
 	"time"
 
-	"github.com/aquilax/go-perlin"
+	"github.com/ojrac/opensimplex-go"
 )
 
-func colorAt(gen *perlin.Perlin, x, y, offset float64) uint8 {
-	return uint8(255 * ((1 + gen.Noise2D(x+offset, y+offset)) / 2))
+func colorAt(gen opensimplex.Noise32, x, y, offset float32) uint8 {
+	return uint8(255 * (gen.Eval2(x+offset, y+offset)))
 }
 
-func someNoise(width, height, scale, seed int) []uint8 {
-	gen := perlin.NewPerlin(2, 2, 3, int64(seed))
+func someNoise(width, height, scale, seed int) []interface{} {
+	gen := opensimplex.NewNormalized32(int64(seed))
 
 	start := time.Now()
-	canvas := make([]uint8, width*height*4)
+	canvas := make([]interface{}, width*height*4)
 	for i := 0; i < len(canvas); i += 4 {
-		x := float64((i/4)%(width)) / float64(scale)
-		y := float64((i/4)/(width)) / float64(scale)
+		x := float32((i/4)%(width)) / float32(scale)
+		y := float32((i/4)/(width)) / float32(scale)
 		canvas[i] = colorAt(gen, x, y, 0.25)
 		canvas[i+1] = colorAt(gen, x, y, 0.5)
 		canvas[i+2] = colorAt(gen, x, y, 0.75)
@@ -38,13 +38,7 @@ func genWrapper() js.Func {
 		scale := args[2].Int()
 		seed := args[3].Int()
 
-		data := someNoise(width, height, scale, seed)
-		returned := make([]interface{}, len(data))
-		for i := 0; i < len(data); i++ {
-			returned[i] = data[i]
-		}
-
-		return returned
+		return someNoise(width, height, scale, seed)
 	})
 }
 

@@ -10,12 +10,12 @@
   let canvas: HTMLCanvasElement;
   let canvasCtx: CanvasRenderingContext2D;
 
-  let canvasWidth = 255;
+  let canvasWidth = 375;
   let canvasHeight: number;
   $: canvasHeight = canvasWidth * (2 / 3);
 
   let noiseSeed = 0;
-  let noiseScale = 35;
+  let noiseScale = 30;
 
   const canvasData = writable(
     new Uint8ClampedArray(canvasWidth * canvasHeight * 4)
