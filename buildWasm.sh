@@ -1,1 +1,1 @@
-cd cmd/wasm && GOOS=js GOARCH=wasm go build -o ../../src/wasm.wasm
+cd cmd/wasm && GOOS=js GOARCH=wasm go build -o ../../public/wasm/index.wasm
