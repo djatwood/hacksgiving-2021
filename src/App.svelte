@@ -35,10 +35,9 @@
     loading = true;
     setTimeout(() => {
       console.time("Saved generated noise");
-      $canvasData = new Uint8ClampedArray(
-        $generate(canvasWidth, canvasHeight, noiseScale, noiseSeed)
-      );
+      $canvasData = new Uint8ClampedArray($generate(canvasWidth, canvasHeight, noiseScale, noiseSeed));
       console.timeEnd("Saved generated noise");
+
       loading = false;
     }, 0);
   };
