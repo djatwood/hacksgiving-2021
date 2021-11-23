@@ -35,7 +35,9 @@
     loading = true;
     setTimeout(() => {
       console.time("Saved generated noise");
-      $canvasData = new Uint8ClampedArray($generate(canvasWidth, canvasHeight, noiseScale, noiseSeed));
+      $canvasData = new Uint8ClampedArray(
+        $generate(canvasWidth, canvasHeight, noiseScale, noiseSeed)
+      );
       console.timeEnd("Saved generated noise");
 
       loading = false;
@@ -53,11 +55,13 @@
 </script>
 
 <main>
-  <canvas
-    bind:this={canvas}
-    style="--max-width: {canvasWidth / window.devicePixelRatio}px"
-  />
-
+  <div class="container">
+    <canvas
+      class:loading
+      bind:this={canvas}
+      style="--max-width: {canvasWidth / window.devicePixelRatio}px"
+    />
+  </div>
   <Form
     bind:canvasWidth
     bind:noiseSeed
@@ -79,14 +83,25 @@
     background: #212121;
   }
 
-  canvas {
+  .container {
     width: 1000px;
-    background: black;
-    border-radius: 4px;
+
     margin-bottom: 2rem;
 
+    background: #fff;
     box-shadow: 0 4px 10px #0004;
+  }
 
-    image-rendering: pixelated; /* Chrome */
+  canvas {
+    display: block;
+    width: 100%;
+
+    image-rendering: pixelated;
+
+    transition: opacity 200ms ease-in-out;
+  }
+
+  canvas.loading {
+    opacity: 0.5;
   }
 </style>

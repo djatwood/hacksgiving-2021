@@ -55,9 +55,9 @@
   }
 
   input {
-    padding: 0.4em;
+    padding: 0.5rem 0.6rem;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 6px;
     background: transparent;
 
     font-family: inherit;
@@ -84,8 +84,13 @@
     align-items: stretch;
   }
   button {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0 1rem;
     border: none;
-    margin-left: 1rem;
     background: transparent;
 
     cursor: pointer;
