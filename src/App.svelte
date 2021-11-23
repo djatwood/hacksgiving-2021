@@ -1,37 +1,70 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { writable } from "svelte/store";
 
-  const canvasWidth = 1024 * window.devicePixelRatio;
-  const canvasHeight = canvasWidth * (9 / 16);
+  import Form from "./components/Form.svelte";
 
+  export let generate: ReturnType<typeof writable>;
+
+  let loading = false;
   let canvas: HTMLCanvasElement;
+  let canvasCtx: CanvasRenderingContext2D;
+
+  let canvasWidth = 255;
+  let canvasHeight: number;
+  $: canvasHeight = canvasWidth * (2 / 3);
+
+  let noiseSeed = 0;
+  let noiseScale = 35;
+
+  const canvasData = writable(
+    new Uint8ClampedArray(canvasWidth * canvasHeight * 4)
+  );
+
+  canvasData.subscribe((canvasData) => {
+    if (!canvasCtx) return;
+    const imageData = new ImageData(canvasData, canvasWidth, canvasHeight);
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    canvasCtx.putImageData(imageData, 0, 0);
+  });
+
+  const generateNoise = (event?: SubmitEvent) => {
+    if (!$generate || loading) return;
+
+    loading = true;
+    setTimeout(() => {
+      console.time("Saved generated noise");
+      $canvasData = new Uint8ClampedArray(
+        $generate(canvasWidth, canvasHeight, noiseScale, noiseSeed)
+      );
+      console.timeEnd("Saved generated noise");
+      loading = false;
+    }, 0);
+  };
+
+  generate.subscribe(() => generateNoise());
 
   onMount(() => {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    const ctx = canvas.getContext("2d");
-
-    const data = new Uint8ClampedArray(4 * canvasWidth * canvasHeight);
-
-    for (let i = 0; i < data.length; i += 4) {
-      const value = (255 * ((i / 4) % canvasWidth)) / canvasWidth;
-      data[i] = value;
-      data[i + 1] = value;
-      data[i + 2] = value;
-      data[i + 3] = 255;
-    }
-
-    const imageData = new ImageData(data, canvasWidth, canvasHeight);
-    ctx.putImageData(imageData, 0, 0);
+    canvasCtx = canvas.getContext("2d");
   });
 </script>
 
 <main>
   <canvas
     bind:this={canvas}
-    width={canvasWidth}
     style="--max-width: {canvasWidth / window.devicePixelRatio}px"
+  />
+
+  <Form
+    bind:canvasWidth
+    bind:noiseSeed
+    bind:noiseScale
+    {loading}
+    onSubmit={generateNoise}
   />
 </main>
 
@@ -44,12 +77,17 @@
     width: 100vw;
     height: 100vh;
 
-    background: #567;
+    background: #212121;
   }
 
   canvas {
-    max-width: var(--max-width);
-    width: 100%;
+    width: 1000px;
     background: black;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+
+    box-shadow: 0 4px 10px #0004;
+
+    image-rendering: pixelated; /* Chrome */
   }
 </style>
