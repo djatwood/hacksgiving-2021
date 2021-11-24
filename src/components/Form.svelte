@@ -61,6 +61,7 @@
   }
 
   input {
+    width: 100%;
     padding: 0.5rem 0.6rem;
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -81,6 +82,10 @@
   input[type="submit"] {
     grid-column-start: span 2;
     cursor: pointer;
+  }
+
+  input[type="checkbox"] {
+    width: auto;
   }
 
   .seed {

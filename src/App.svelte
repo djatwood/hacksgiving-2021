@@ -91,11 +91,15 @@
     width: 100vw;
     height: 100vh;
 
+    padding: 1rem;
+    box-sizing: border-box;
+
     background: #212121;
   }
 
   canvas {
-    width: 1000px;
+    max-width: 1000px;
+    width: 100%;
     margin-bottom: 2rem;
 
     background: #fff;
