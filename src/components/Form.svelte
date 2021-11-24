@@ -1,11 +1,5 @@
 <script lang="ts">
-  export let canvasWidth,
-    loading,
-    noiseScale,
-    noiseSeed,
-    onSubmit,
-    simpleMode,
-    slowMode;
+  export let canvasWidth, loading, noiseScale, noiseSeed, onSubmit, renderMode;
 
   let rotate = 0;
 
@@ -36,14 +30,39 @@
     <input id="seed" type="number" required bind:value={noiseSeed} />
   </div>
 
-  <div class="row">
-    <div class="checkbox">
-      <label for="simple">Simple Mode</label>
-      <input type="checkbox" id="simple" bind:checked={simpleMode} />
-    </div>
-    <div class="checkbox">
-      <label for="slow">Slow Mode</label>
-      <input type="checkbox" id="slow" bind:checked={slowMode} />
+  <div class="render">
+    <p>Render mode</p>
+    <div class="row">
+      <div class="radio">
+        <label for="live">Live</label>
+        <input
+          type="radio"
+          name="render"
+          id="live"
+          bind:group={renderMode}
+          value="live"
+        />
+      </div>
+      <div class="radio">
+        <label for="smooth">Smooth</label>
+        <input
+          type="radio"
+          name="render"
+          id="smooth"
+          bind:group={renderMode}
+          value="smooth"
+        />
+      </div>
+      <div class="radio">
+        <label for="full">Full</label>
+        <input
+          type="radio"
+          name="render"
+          id="full"
+          bind:group={renderMode}
+          value="full"
+        />
+      </div>
     </div>
   </div>
 
@@ -94,9 +113,10 @@
   input[type="submit"] {
     grid-column-start: span 2;
     cursor: pointer;
+    margin-top: 4px;
   }
 
-  input[type="checkbox"] {
+  input[type="radio"] {
     width: auto;
   }
 
@@ -124,19 +144,28 @@
     transition: transform 200ms ease-in-out;
   }
 
-  .row {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
+  .render {
     grid-column-start: span 2;
   }
 
-  .checkbox {
+  .render p {
+    margin-top: 0;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    grid-column-start: span 2;
+  }
+
+  .radio {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
   }
-  .checkbox label {
+  .radio label {
     order: 1;
     margin-left: 4px;
   }

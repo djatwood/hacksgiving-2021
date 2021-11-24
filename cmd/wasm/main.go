@@ -14,12 +14,22 @@ func streamGeneration() js.Func {
 		height := args[1].Int()
 		scale := float32(args[2].Int())
 		seed := args[3].Int()
-		simple := args[4].Bool()
+		chunkSize := args[4].Int()
+		// simple := args[5].Bool()
+		simple := false
 
 		gen := opensimplex.NewNormalized32(int64(seed))
 
 		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			resolve := args[0]
+			reject := args[1]
+
+			if chunkSize < 1 {
+				errorConstructor := js.Global().Get("Error")
+				errorObject := errorConstructor.New("chunkSize must be greater than or equal to 1")
+				reject.Invoke(errorObject)
+				return nil
+			}
 
 			go func() {
 				streamSource := map[string]interface{}{
@@ -27,13 +37,23 @@ func streamGeneration() js.Func {
 						controller := args[0]
 
 						go func() {
+							buffer := make([]byte, chunkSize*width*4)
+							Uint8ClampedArray := js.Global().Get("Uint8ClampedArray")
+
 							for cursor := 0; cursor < height; cursor++ {
 								row := []byte(generator.GenerateRow(gen, simple, width, height, scale, float32(cursor)))
-								array := js.Global().Get("Uint8ClampedArray")
-								data := array.New(len(row))
-								js.CopyBytesToJS(data, row)
-								controller.Call("enqueue", data)
+								copy(buffer[(cursor%chunkSize)*4*width:], row)
+
+								if (cursor+1)%chunkSize == 0 {
+									data := Uint8ClampedArray.New(len(buffer))
+									js.CopyBytesToJS(data, buffer)
+									controller.Call("enqueue", data)
+								}
 							}
+
+							data := Uint8ClampedArray.New(len(buffer))
+							js.CopyBytesToJS(data, buffer)
+							controller.Call("enqueue", data)
 
 							controller.Call("close")
 						}()

@@ -10,28 +10,28 @@
   let canvas: HTMLCanvasElement;
   let canvasCtx: CanvasRenderingContext2D;
 
-  let canvasWidth = 1024 * window.devicePixelRatio;
+  let canvasWidth = Math.round(1024 * window.devicePixelRatio);
   let canvasHeight: number;
   $: canvasHeight = Math.round(canvasWidth * (2 / 3));
 
   let noiseSeed = 73;
   let noiseScale = 128 * window.devicePixelRatio;
+  let renderMode: "live" | "smooth" | "full" = "live";
   let simpleMode = false;
-  let slowMode = true;
 
   const generateNoise = () => {
     if (!$generate || loading) return;
 
     loading = true;
     setTimeout(async () => {
-      console.time("Generated terrain");
+      console.time("Rendered terrain");
 
       const response = await $generate(
         canvasWidth,
         canvasHeight,
         noiseScale,
         noiseSeed,
-        simpleMode
+        renderMode === "smooth" ? Math.floor(canvasHeight * 0.1) : 1
       );
 
       if (canvas.width != canvasWidth) canvas.width = canvasWidth;
@@ -40,52 +40,53 @@
       const body: ReadableStream<Uint8ClampedArray> = await response.body;
       const reader = body.getReader();
 
-      const drawRow = (row: number, data?: Uint8ClampedArray) => {
+      const drawRow = (row: number, data?: Uint8ClampedArray): number => {
         if (!data) {
           return;
         }
-        const imageData = new ImageData(data, canvasWidth, 1);
+        const imageData = new ImageData(data, canvasWidth);
         canvasCtx.putImageData(imageData, 0, row);
+        return row + data.length / 4 / canvasWidth;
       };
 
-      let row = 0;
-      const slowDraw = async () => {
-        const buffer = await Promise.all(
-          Array(Math.floor(Math.min(canvasHeight - row, canvasHeight * 0.01)))
-            .fill(0)
-            .map(async () => await reader.read())
-        );
-
-        const data = new Uint8ClampedArray(buffer.length * 4 * canvasWidth);
-        buffer.forEach(({ value }, index) => {
-          data.set(value, index * 4 * canvasWidth);
-        });
-
-        const imageData = new ImageData(data, canvasWidth, buffer.length);
-        canvasCtx.putImageData(imageData, 0, row);
-
-        row += buffer.length;
-
-        if (row >= canvasHeight) {
-          return;
-        }
-
-        window.requestAnimationFrame(slowDraw);
-      };
-
-      if (slowMode) {
-        slowDraw();
-      } else {
-        for (let row = 0; row < canvasHeight; row++) {
+      const smoothDraw = () => {
+        let row = 0;
+        const draw = async (t: number) => {
           const { done, value } = await reader.read();
-          drawRow(row, value);
+          row = drawRow(row, value);
+          if (done) {
+            return;
+          }
+
+          window.requestAnimationFrame(draw);
+        };
+        draw(0);
+      };
+
+      if (renderMode === "smooth") {
+        smoothDraw();
+      } else {
+        let row = 0;
+        while (row < canvasHeight) {
+          const { done, value } = await reader.read();
+
+          if (renderMode === "live") {
+            setTimeout(() => (row = drawRow(row, value)), 0);
+          } else {
+            row = drawRow(row, value);
+          }
+
           if (done) {
             break;
           }
         }
       }
 
-      console.timeEnd("Generated terrain");
+      console.log(
+        "chunkSize:",
+        renderMode === "smooth" ? Math.floor(canvasHeight * 0.1) : 1
+      );
+      console.timeEnd("Rendered terrain");
 
       loading = false;
     }, 0);
@@ -109,8 +110,8 @@
     bind:canvasWidth
     bind:noiseSeed
     bind:noiseScale
+    bind:renderMode
     bind:simpleMode
-    bind:slowMode
     {loading}
     onSubmit={generateNoise}
   />
