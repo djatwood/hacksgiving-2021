@@ -10,6 +10,7 @@
 
   const newRandomSeed = (event: Event) => {
     event.preventDefault();
+    if (loading) return;
     noiseSeed = Math.floor(Math.random() * 100);
     rotate++;
     onSubmit();
@@ -23,10 +24,10 @@
   <input id="scale" type="number" required bind:value={noiseScale} />
   <label for="seed"> Seed </label>
   <div class="seed">
-    <input id="seed" type="number" required bind:value={noiseSeed} />
     <button on:click={newRandomSeed} style="--rotate: {rotate * 360}deg">
       <img src="/rotate-cw.svg" alt="" />
     </button>
+    <input id="seed" type="number" required bind:value={noiseSeed} />
   </div>
 
   <input
@@ -89,8 +90,8 @@
     justify-content: center;
     align-items: center;
 
-    padding: 0 1rem;
     border: none;
+    margin-right: 1rem;
     background: transparent;
 
     cursor: pointer;
