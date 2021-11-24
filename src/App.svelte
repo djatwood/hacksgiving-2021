@@ -24,7 +24,7 @@
 
     loading = true;
     setTimeout(async () => {
-      console.time("Saved generated noise");
+      console.time("Generated terrain");
 
       const response = await $generate(
         canvasWidth,
@@ -53,7 +53,7 @@
         }
       }
 
-      console.timeEnd("Saved generated noise");
+      console.timeEnd("Generated terrain");
 
       loading = false;
     }, 0);

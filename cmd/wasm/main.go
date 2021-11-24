@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"syscall/js"
 	"time"
@@ -29,7 +28,6 @@ func streamGeneration() js.Func {
 					"start": js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 						controller := args[0]
 
-						start := time.Now()
 						go func() {
 							for cursor := 0; cursor < height; cursor++ {
 								row := []byte(generator.GenerateRow(gen, simple, width, height, scale, float32(cursor)))
@@ -45,7 +43,6 @@ func streamGeneration() js.Func {
 
 							controller.Call("close")
 						}()
-						fmt.Println("Finished streaming", time.Since(start))
 
 						return nil
 					}),
@@ -74,7 +71,6 @@ func streamGeneration() js.Func {
 }
 
 func main() {
-	fmt.Println("Go Web Assembly")
 	js.Global().Set("generate", streamGeneration())
 	<-make(chan bool)
 }
