@@ -24,14 +24,14 @@
 </script>
 
 <form on:submit={handleOnSubmit}>
-  <label for="width">Canvas Width </label>
+  <label for="width">Canvas Width</label>
   <input id="width" type="number" required bind:value={canvasWidth} />
-  <label for="scale">Noise Scale </label>
+  <label for="scale">Noise Scale</label>
   <input id="scale" type="number" required bind:value={noiseScale} />
   <label for="seed">Seed </label>
   <div class="seed">
     <button on:click={newRandomSeed} style="--rotate: {rotate * 360}deg">
-      <img src="/rotate-cw.svg" alt="" />
+      <img src="rotate-cw.svg" alt="" />
     </button>
     <input id="seed" type="number" required bind:value={noiseSeed} />
   </div>

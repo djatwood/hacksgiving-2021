@@ -5,7 +5,7 @@ import { writable } from 'svelte/store';
 const generate = writable(null);
 
 const go = new Go();
-WebAssembly.instantiateStreaming(fetch("/wasm/index.wasm"), go.importObject).then((result) => {
+WebAssembly.instantiateStreaming(fetch("wasm/index.wasm"), go.importObject).then((result) => {
   go.run(result.instance);
   generate.set(window.generate)
 });
