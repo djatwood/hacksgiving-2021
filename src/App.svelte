@@ -33,13 +33,16 @@
     if (!$generate || loading) return;
 
     loading = true;
-    setTimeout(() => {
+    setTimeout(async () => {
       console.time("Saved generated noise");
-      $canvasData = new Uint8ClampedArray(
-        $generate(canvasWidth, canvasHeight, noiseScale, noiseSeed)
+      const data = await $generate(
+        canvasWidth,
+        canvasHeight,
+        noiseScale,
+        noiseSeed
       );
       console.timeEnd("Saved generated noise");
-
+      $canvasData = new Uint8ClampedArray(data);
       loading = false;
     }, 0);
   };
@@ -50,7 +53,7 @@
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    canvasCtx = canvas.getContext("2d");
+    canvasCtx = canvas.getContext("2d", { alpha: false });
   });
 </script>
 

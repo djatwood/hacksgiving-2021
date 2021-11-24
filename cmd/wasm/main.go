@@ -38,7 +38,18 @@ func genWrapper() js.Func {
 		scale := args[2].Int()
 		seed := args[3].Int()
 
-		return someNoise(width, height, scale, seed)
+		handler := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			resolve := args[0]
+
+			go func() {
+				resolve.Invoke(someNoise(width, height, scale, seed))
+			}()
+
+			return nil
+		})
+
+		promiseConstructor := js.Global().Get("Promise")
+		return promiseConstructor.New(handler)
 	})
 }
 
