@@ -31,6 +31,9 @@
         false
       );
 
+      if (canvas.width != canvasWidth) canvas.width = canvasWidth;
+      if (canvas.height != canvasHeight) canvas.height = canvasHeight;
+
       const body: ReadableStream<Uint8ClampedArray> = await response.body;
       const reader = body.getReader();
       let row = 0;
