@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import type { writable } from "svelte/store";
 
   import Form from "./components/Form.svelte";
 
@@ -16,13 +17,13 @@
   let noiseSeed = 0;
   let noiseScale = 128;
 
-  const generateNoise = (event?: SubmitEvent) => {
+  const generateNoise = () => {
     if (!$generate || loading) return;
 
     loading = true;
     setTimeout(async () => {
       console.time("Saved generated noise");
-      const data = await $generate(
+      const response = await $generate(
         canvasWidth,
         canvasHeight,
         noiseScale,
@@ -30,7 +31,7 @@
         false
       );
 
-      const body: ReadableStream<Uint8ClampedArray> = await data.body;
+      const body: ReadableStream<Uint8ClampedArray> = await response.body;
       const reader = body.getReader();
       let row = 0;
       while (true) {
@@ -64,13 +65,8 @@
 </script>
 
 <main>
-  <div class="container">
-    <canvas
-      class:loading
-      bind:this={canvas}
-      style="--max-width: {canvasWidth / window.devicePixelRatio}px"
-    />
-  </div>
+  <canvas bind:this={canvas} />
+
   <Form
     bind:canvasWidth
     bind:noiseSeed
@@ -92,25 +88,14 @@
     background: #212121;
   }
 
-  .container {
+  canvas {
     width: 1000px;
-
     margin-bottom: 2rem;
 
     background: #fff;
+
     box-shadow: 0 4px 10px #0004;
-  }
-
-  canvas {
-    display: block;
-    width: 100%;
-
-    image-rendering: pixelated;
-
     transition: opacity 200ms ease-in-out;
+    image-rendering: pixelated;
   }
-
-  /* canvas.loading {
-    opacity: 0.5;
-  } */
 </style>
