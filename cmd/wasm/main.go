@@ -9,20 +9,66 @@ import (
 	"github.com/ojrac/opensimplex-go"
 )
 
-func colorAt(gen opensimplex.Noise32, x, y, offset float32) uint8 {
+func interpolateNoiseTo255(gen opensimplex.Noise32, x, y, offset float32) uint8 {
 	return uint8(255 * (gen.Eval2(x+offset, y+offset)))
+}
+
+func getColor(value float32) (channels [4]uint8) {
+	channels[3] = 255
+
+	// water
+	if value < 0.3 {
+		channels[0] = 127
+		channels[1] = 205
+		channels[2] = 255
+		return
+	}
+
+	// beach
+	if value < 0.35 {
+		channels[0] = 210
+		channels[1] = 255
+		channels[2] = 228
+		return
+	}
+
+	// grass
+	if value < 0.7 {
+		channels[0] = 2
+		channels[1] = 161
+		channels[2] = 78
+		return
+	}
+
+	// forest
+	if value < 0.9 {
+		channels[0] = 1
+		channels[1] = 85
+		channels[2] = 41
+		return
+	}
+
+	// deep forest
+	return [4]uint8{
+		60,
+		42,
+		42,
+		255,
+	}
 }
 
 func noiseRow(gen opensimplex.Noise32, width, height, scale, cursor int) []uint8 {
 	row := make([]uint8, width*4)
 	for col := 0; col < width; col++ {
-		i := col * 4
 		x := float32(col%width) / float32(scale)
 		y := float32(cursor) / float32(scale)
-		row[i] = colorAt(gen, x, y, 0.25)
-		row[i+1] = colorAt(gen, x, y, 0.5)
-		row[i+2] = colorAt(gen, x, y, 0.75)
-		row[i+3] = 255
+		value := gen.Eval2(x+0.5, y+0.5)
+		color := getColor(value)
+		i := col * 4
+		row[i] = color[0]
+		row[i+1] = color[1]
+		row[i+2] = color[2]
+		row[i+3] = color[3]
 	}
 	return row
 }
