@@ -7,6 +7,8 @@
   export let generate: ReturnType<typeof writable>;
 
   let loading = false;
+  let generationDuration = 0;
+
   let canvas: HTMLCanvasElement;
   let canvasCtx: CanvasRenderingContext2D;
 
@@ -15,7 +17,7 @@
   $: canvasHeight = Math.round(canvasWidth * (2 / 3));
 
   let noiseSeed = 73;
-  let noiseScale = 128 * window.devicePixelRatio;
+  let noiseScale = Math.round(128 * window.devicePixelRatio);
   let renderMode: "live" | "smooth" | "full" = "live";
   let simpleMode = false;
 
@@ -24,7 +26,7 @@
 
     loading = true;
     setTimeout(async () => {
-      console.time("Rendered terrain");
+      const start = performance.now();
 
       const response = await $generate(
         canvasWidth,
@@ -82,12 +84,7 @@
         }
       }
 
-      console.log(
-        "chunkSize:",
-        renderMode === "smooth" ? Math.floor(canvasHeight * 0.1) : 1
-      );
-      console.timeEnd("Rendered terrain");
-
+      generationDuration = Math.round(performance.now() - start);
       loading = false;
     }, 0);
   };
@@ -104,14 +101,16 @@
 </script>
 
 <main>
-  <canvas bind:this={canvas} />
+  <div class="container">
+    <canvas bind:this={canvas} />
+    <p>Generation took {generationDuration}ms</p>
+  </div>
 
   <Form
     bind:canvasWidth
     bind:noiseSeed
     bind:noiseScale
     bind:renderMode
-    bind:simpleMode
     {loading}
     onSubmit={generateNoise}
   />
@@ -123,19 +122,26 @@
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    min-height: 100vh;
 
-    padding: 1rem;
+    padding: 2rem;
     box-sizing: border-box;
 
     background: #212121;
   }
 
-  canvas {
+  .container {
     max-width: 1000px;
     width: 100%;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+
+    color: #fff;
+    text-align: center;
+  }
+
+  canvas {
+    width: 100%;
 
     background: #fff;
 
