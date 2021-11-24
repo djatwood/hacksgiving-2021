@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { writable } from "svelte/store";
 
   import Form from "./components/Form.svelte";
 
@@ -10,24 +9,12 @@
   let canvas: HTMLCanvasElement;
   let canvasCtx: CanvasRenderingContext2D;
 
-  let canvasWidth = 375;
+  let canvasWidth = 1024;
   let canvasHeight: number;
   $: canvasHeight = canvasWidth * (2 / 3);
 
   let noiseSeed = 0;
-  let noiseScale = 30;
-
-  const canvasData = writable(
-    new Uint8ClampedArray(canvasWidth * canvasHeight * 4)
-  );
-
-  canvasData.subscribe((canvasData) => {
-    if (!canvasCtx) return;
-    const imageData = new ImageData(canvasData, canvasWidth, canvasHeight);
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    canvasCtx.putImageData(imageData, 0, 0);
-  });
+  let noiseScale = 128;
 
   const generateNoise = (event?: SubmitEvent) => {
     if (!$generate || loading) return;
@@ -39,10 +26,29 @@
         canvasWidth,
         canvasHeight,
         noiseScale,
-        noiseSeed
+        noiseSeed,
+        false
       );
+
+      const body: ReadableStream<Uint8ClampedArray> = await data.body;
+      const reader = body.getReader();
+      let row = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (value) {
+          const rowData = new Uint8ClampedArray(value);
+          const imageData = new ImageData(rowData, canvasWidth, 1);
+          canvasCtx.putImageData(imageData, 0, row);
+          row++;
+        }
+
+        if (done) {
+          break;
+        }
+      }
+
       console.timeEnd("Saved generated noise");
-      $canvasData = new Uint8ClampedArray(data);
+
       loading = false;
     }, 0);
   };
@@ -104,7 +110,7 @@
     transition: opacity 200ms ease-in-out;
   }
 
-  canvas.loading {
+  /* canvas.loading {
     opacity: 0.5;
-  }
+  } */
 </style>
