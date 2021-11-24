@@ -16,6 +16,7 @@
 
   let noiseSeed = 0;
   let noiseScale = 128 * window.devicePixelRatio;
+  let simpleMode = true;
   let slowMode = false;
 
   const generateNoise = () => {
@@ -29,6 +30,7 @@
         canvasHeight,
         noiseScale,
         noiseSeed,
+        simpleMode,
         slowMode
       );
 
@@ -76,6 +78,7 @@
     bind:canvasWidth
     bind:noiseSeed
     bind:noiseScale
+    bind:simpleMode
     bind:slowMode
     {loading}
     onSubmit={generateNoise}

@@ -1,5 +1,11 @@
 <script lang="ts">
-  export let canvasWidth, loading, noiseScale, noiseSeed, onSubmit, slowMode;
+  export let canvasWidth,
+    loading,
+    noiseScale,
+    noiseSeed,
+    onSubmit,
+    simpleMode,
+    slowMode;
 
   let rotate = 0;
 
@@ -30,9 +36,15 @@
     <input id="seed" type="number" required bind:value={noiseSeed} />
   </div>
 
-  <div class="slow">
-    <label for="slow">Slow Mode</label>
-    <input type="checkbox" id="slow" bind:checked={slowMode} />
+  <div class="row">
+    <div class="checkbox">
+      <label for="simple">Simple Mode</label>
+      <input type="checkbox" id="simple" bind:checked={simpleMode} />
+    </div>
+    <div class="checkbox">
+      <label for="slow">Slow Mode</label>
+      <input type="checkbox" id="slow" bind:checked={slowMode} />
+    </div>
   </div>
 
   <input
@@ -112,12 +124,19 @@
     transition: transform 200ms ease-in-out;
   }
 
-  .slow {
+  .row {
     display: flex;
     flex-flow: row nowrap;
+    justify-content: space-between;
     grid-column-start: span 2;
   }
-  .slow label {
+
+  .checkbox {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+  }
+  .checkbox label {
     order: 1;
     margin-left: 4px;
   }

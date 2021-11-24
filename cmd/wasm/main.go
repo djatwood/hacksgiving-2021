@@ -9,7 +9,7 @@ import (
 	"github.com/ojrac/opensimplex-go"
 )
 
-func getColor(value float32) (channels [4]uint8) {
+func getColor(value float32, simple bool) (channels [4]uint8) {
 	channels[3] = 255
 
 	// water
@@ -26,6 +26,10 @@ func getColor(value float32) (channels [4]uint8) {
 		channels[1] = 255
 		channels[2] = 228
 		return
+	}
+
+	if simple {
+		return [4]uint8{2, 161, 78, 255}
 	}
 
 	// grass
@@ -53,13 +57,13 @@ func getColor(value float32) (channels [4]uint8) {
 	}
 }
 
-func noiseRow(gen opensimplex.Noise32, width, height int, scale, cursor float32) []uint8 {
+func noiseRow(gen opensimplex.Noise32, simple bool, width, height int, scale, cursor float32) []uint8 {
 	row := make([]uint8, width*4)
 	y := cursor / scale
 	for col := 0; col < width; col++ {
 		x := float32(col%width) / scale
 		value := gen.Eval2(x, y)
-		color := getColor(value)
+		color := getColor(value, simple)
 		i := col * 4
 		row[i] = color[0]
 		row[i+1] = color[1]
@@ -75,7 +79,8 @@ func streamGeneration() js.Func {
 		height := args[1].Int()
 		scale := float32(args[2].Int())
 		seed := args[3].Int()
-		slow := args[4].Bool()
+		simple := args[4].Bool()
+		slow := args[5].Bool()
 
 		gen := opensimplex.NewNormalized32(int64(seed))
 
@@ -95,7 +100,7 @@ func streamGeneration() js.Func {
 						go func() {
 							start := time.Now()
 							for cursor := 0; cursor < height; cursor++ {
-								buf := []byte(noiseRow(gen, width, height, scale, float32(cursor)))
+								buf := []byte(noiseRow(gen, simple, width, height, scale, float32(cursor)))
 								arrayConstructor := js.Global().Get("Uint8ClampedArray")
 								dataJS := arrayConstructor.New(len(buf))
 								js.CopyBytesToJS(dataJS, buf[:])
