@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"syscall/js"
-	"time"
 
 	"github.com/djatwood/hacksgiving-2021/packages/generator"
 	"github.com/ojrac/opensimplex-go"
@@ -16,7 +15,6 @@ func streamGeneration() js.Func {
 		scale := float32(args[2].Int())
 		seed := args[3].Int()
 		simple := args[4].Bool()
-		slow := args[5].Bool()
 
 		gen := opensimplex.NewNormalized32(int64(seed))
 
@@ -35,10 +33,6 @@ func streamGeneration() js.Func {
 								data := array.New(len(row))
 								js.CopyBytesToJS(data, row)
 								controller.Call("enqueue", data)
-
-								if slow {
-									time.Sleep(1 * time.Nanosecond)
-								}
 							}
 
 							controller.Call("close")

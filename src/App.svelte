@@ -17,7 +17,7 @@
   let noiseSeed = 73;
   let noiseScale = 128 * window.devicePixelRatio;
   let simpleMode = false;
-  let slowMode = false;
+  let slowMode = true;
 
   const generateNoise = () => {
     if (!$generate || loading) return;
@@ -31,8 +31,7 @@
         canvasHeight,
         noiseScale,
         noiseSeed,
-        simpleMode,
-        slowMode
+        simpleMode
       );
 
       if (canvas.width != canvasWidth) canvas.width = canvasWidth;
@@ -41,15 +40,37 @@
       const body: ReadableStream<Uint8ClampedArray> = await response.body;
       const reader = body.getReader();
 
-      for (let row = 0; row < canvasHeight; row++) {
-        const { done, value } = await reader.read();
-        if (value) {
-          const imageData = new ImageData(value, canvasWidth, 1);
-          canvasCtx.putImageData(imageData, 0, row);
+      const drawRow = (row: number, data?: Uint8ClampedArray) => {
+        if (!data) {
+          return;
+        }
+        const imageData = new ImageData(data, canvasWidth, 1);
+        canvasCtx.putImageData(imageData, 0, row);
+      };
+
+      let row = 0;
+      const slowDraw = async () => {
+        for (let y = 0; y < canvasHeight * 0.01; y++) {
+          row++;
+          const { done, value } = await reader.read();
+          drawRow(row, value);
+          if (done) {
+            return;
+          }
         }
 
-        if (done) {
-          break;
+        window.requestAnimationFrame(slowDraw);
+      };
+
+      if (slowMode) {
+        slowDraw();
+      } else {
+        for (let row = 0; row < canvasHeight; row++) {
+          const { done, value } = await reader.read();
+          drawRow(row, value);
+          if (done) {
+            break;
+          }
         }
       }
 
