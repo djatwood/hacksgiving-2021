@@ -10,12 +10,12 @@
   let canvas: HTMLCanvasElement;
   let canvasCtx: CanvasRenderingContext2D;
 
-  let canvasWidth = 1024;
+  let canvasWidth = 1024 * window.devicePixelRatio;
   let canvasHeight: number;
   $: canvasHeight = canvasWidth * (2 / 3);
 
   let noiseSeed = 0;
-  let noiseScale = 128;
+  let noiseScale = 128 * window.devicePixelRatio;
   let slowMode = false;
 
   const generateNoise = () => {
@@ -65,6 +65,7 @@
     canvas.height = canvasHeight;
 
     canvasCtx = canvas.getContext("2d", { alpha: false });
+    canvasCtx.imageSmoothingEnabled = true;
   });
 </script>
 
@@ -101,6 +102,5 @@
 
     box-shadow: 0 4px 10px #0004;
     transition: opacity 200ms ease-in-out;
-    image-rendering: pixelated;
   }
 </style>
