@@ -14,9 +14,9 @@
   let canvasHeight: number;
   $: canvasHeight = Math.round(canvasWidth * (2 / 3));
 
-  let noiseSeed = 0;
+  let noiseSeed = 73;
   let noiseScale = 128 * window.devicePixelRatio;
-  let simpleMode = true;
+  let simpleMode = false;
   let slowMode = false;
 
   const generateNoise = () => {
@@ -25,6 +25,7 @@
     loading = true;
     setTimeout(async () => {
       console.time("Saved generated noise");
+
       const response = await $generate(
         canvasWidth,
         canvasHeight,
@@ -39,14 +40,12 @@
 
       const body: ReadableStream<Uint8ClampedArray> = await response.body;
       const reader = body.getReader();
-      let row = 0;
-      while (true) {
+
+      for (let row = 0; row < canvasHeight; row++) {
         const { done, value } = await reader.read();
         if (value) {
-          const rowData = new Uint8ClampedArray(value);
-          const imageData = new ImageData(rowData, canvasWidth, 1);
+          const imageData = new ImageData(value, canvasWidth, 1);
           canvasCtx.putImageData(imageData, 0, row);
-          row++;
         }
 
         if (done) {
