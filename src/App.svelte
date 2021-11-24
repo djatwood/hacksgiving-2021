@@ -12,7 +12,7 @@
 
   let canvasWidth = 1024 * window.devicePixelRatio;
   let canvasHeight: number;
-  $: canvasHeight = canvasWidth * (2 / 3);
+  $: canvasHeight = Math.round(canvasWidth * (2 / 3));
 
   let noiseSeed = 0;
   let noiseScale = 128 * window.devicePixelRatio;
@@ -105,6 +105,5 @@
     background: #fff;
 
     box-shadow: 0 4px 10px #0004;
-    transition: opacity 200ms ease-in-out;
   }
 </style>
