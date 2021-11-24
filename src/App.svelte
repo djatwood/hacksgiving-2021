@@ -16,6 +16,7 @@
 
   let noiseSeed = 0;
   let noiseScale = 128;
+  let slowMode = false;
 
   const generateNoise = () => {
     if (!$generate || loading) return;
@@ -28,7 +29,7 @@
         canvasHeight,
         noiseScale,
         noiseSeed,
-        false
+        slowMode
       );
 
       if (canvas.width != canvasWidth) canvas.width = canvasWidth;
@@ -74,6 +75,7 @@
     bind:canvasWidth
     bind:noiseSeed
     bind:noiseScale
+    bind:slowMode
     {loading}
     onSubmit={generateNoise}
   />

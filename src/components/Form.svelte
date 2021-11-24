@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let canvasWidth, noiseScale, noiseSeed, loading, onSubmit;
+  export let canvasWidth, loading, noiseScale, noiseSeed, onSubmit, slowMode;
 
   let rotate = 0;
 
@@ -18,16 +18,21 @@
 </script>
 
 <form on:submit={handleOnSubmit}>
-  <label for="width"> Canvas Width </label>
+  <label for="width">Canvas Width </label>
   <input id="width" type="number" required bind:value={canvasWidth} />
-  <label for="scale"> Noise Scale </label>
+  <label for="scale">Noise Scale </label>
   <input id="scale" type="number" required bind:value={noiseScale} />
-  <label for="seed"> Seed </label>
+  <label for="seed">Seed </label>
   <div class="seed">
     <button on:click={newRandomSeed} style="--rotate: {rotate * 360}deg">
       <img src="/rotate-cw.svg" alt="" />
     </button>
     <input id="seed" type="number" required bind:value={noiseSeed} />
+  </div>
+
+  <div class="slow">
+    <label for="slow">Slow Mode</label>
+    <input type="checkbox" id="slow" bind:checked={slowMode} />
   </div>
 
   <input
@@ -100,5 +105,15 @@
   button img {
     transform: rotate(var(--rotate));
     transition: transform 200ms ease-in-out;
+  }
+
+  .slow {
+    display: flex;
+    flex-flow: row nowrap;
+    grid-column-start: span 2;
+  }
+  .slow label {
+    order: 1;
+    margin-left: 4px;
   }
 </style>
