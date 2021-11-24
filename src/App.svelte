@@ -50,13 +50,24 @@
 
       let row = 0;
       const slowDraw = async () => {
-        for (let y = 0; y < canvasHeight * 0.01; y++) {
-          row++;
-          const { done, value } = await reader.read();
-          drawRow(row, value);
-          if (done) {
-            return;
-          }
+        const buffer = await Promise.all(
+          Array(Math.floor(Math.min(canvasHeight - row, canvasHeight * 0.01)))
+            .fill(0)
+            .map(async () => await reader.read())
+        );
+
+        const data = new Uint8ClampedArray(buffer.length * 4 * canvasWidth);
+        buffer.forEach(({ value }, index) => {
+          data.set(value, index * 4 * canvasWidth);
+        });
+
+        const imageData = new ImageData(data, canvasWidth, buffer.length);
+        canvasCtx.putImageData(imageData, 0, row);
+
+        row += buffer.length;
+
+        if (row >= canvasHeight) {
+          return;
         }
 
         window.requestAnimationFrame(slowDraw);
